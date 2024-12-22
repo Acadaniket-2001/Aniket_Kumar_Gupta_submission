@@ -2,15 +2,16 @@
   "manifest_version": 3,
   "name": "CodeHelp!",
   "version": "0.1",
-  "author": "Aniket Kumar Gupta",
-  "description": "A description about your Chrome Extension...",
+  "author": "Aniket Gupta",
+  "description": "The extension provides AI Doubt Support for problem solving on maang.in",
   "permissions": [
-    ""
+    "storage",
+    "tabs"
   ],
   "content_scripts": [
     {
       "matches": [
-        "<all_urls>"
+        "https://maang.in/problems/*"
       ],
       "js": [
         "content.js"
@@ -22,17 +23,18 @@
   },
   "web_accessible_resources" : [
     {
-      "resources": [],
+      
+      "resources": [],        
       "matches" : ["<all_urls>"]
     }
   ],
   "action": {
     "default_icon": {
-      "16": "logo.png",
-      "24": "logo.png",
-      "32": "logo.png"
+      "16": "assets/ext-logo.png",
+      "24": "assets/ext-logo.png",
+      "32": "assets/ext-logo.png"
     },
-    "default_popup": "index.html",
-    "default_title": "A tooltip popup description when you hover over the Chrome Extension icon."
+    "default_popup": "popup.html",
+    "default_title": "AZ CodeHelp!"
   }
 }
