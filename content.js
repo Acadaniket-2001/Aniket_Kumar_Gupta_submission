@@ -1,4 +1,14 @@
-const aiHelpButtonURL = chrome.runtime.getURL("assets/aiHelpButton.png")
+const COLORS = {
+    "AZ_Blue" : "#ddf6ff",
+	"darkBlue" : "#053E55", 
+	"blue" : "#05445E",
+	"lightBlue" : "#189AB4",
+	"darkGreen": "#47C0C7",
+	"Green": "#75E6DA",
+	"lightGreen" : "#A5ECE7",
+	"Mint" : "#D4F1F4",
+	"LightMint" : "#D8F2F5"
+};
 
 const observer = new MutationObserver(() => {
     addAiHelpButton();
@@ -7,7 +17,7 @@ const observer = new MutationObserver(() => {
 
 observer.observe(document.body, {childList : true, subtree : true});
 
-// addAiHelpButton();
+addAiHelpButton();
 
 function onProblemsPage() {
     const pathName = window.location.pathname;
@@ -15,65 +25,62 @@ function onProblemsPage() {
 }
 
 function addAiHelpButton() {
+    // Check if the current page is a problems page and the button doesn't already exist
+    if (!onProblemsPage() || document.getElementById("aiHelpButton")) return;
 
-    if(!onProblemsPage() || document.getElementById("aiHelpButton")) return;
-
+    //create AI Help ButtonDynamically
     const aiHelpButton = document.createElement('button');
     aiHelpButton.id = "aiHelpButton";
     aiHelpButton.type = "button";
     aiHelpButton.style.cursor = 'pointer';
     aiHelpButton.className = "ant-btn css-19gw05y ant-btn-default Button_gradient_light_button__ZDAR_ coding_ai_help_button__Custom gap-1 py-2 px-3 overflow-hidden";
     aiHelpButton.style.height = "fit-content";
+    aiHelpButton.innerHTML = `<span class="coding_ai_help_gradient_text__Custom">AI Help</span>`;
 
-    // Adding the inner HTML for the button with a robot-style logo
-    aiHelpButton.innerHTML = `
-        <svg stroke="currentColor" fill="none" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true" height="20" width="20" xmlns="http://www.w3.org/2000/svg">
-            <!-- Robot head logo -->
-            <rect x="6" y="8" width="12" height="8" rx="2" ry="2" stroke-linecap="round" stroke-linejoin="round"></rect>
-            <circle cx="9" cy="12" r="1" fill="currentColor"></circle>
-            <circle cx="15" cy="12" r="1" fill="currentColor"></circle>
-            <path d="M9 16h6" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M8 6h2v2H8zM14 6h2v2h-2z" fill="currentColor"></path>
-            <line x1="6" y1="6" x2="8" y2="6" stroke-linecap="round" stroke-linejoin="round"></line>
-            <line x1="16" y1="6" x2="18" y2="6" stroke-linecap="round" stroke-linejoin="round"></line>
-        </svg>
-        <span class="coding_ai_help_gradient_text__Custom">AI Help</span>
-    `;
-
-    // Find the "Ask Doubt" button and insert the new button after it
-    const askDoubtButton = document.getElementsByClassName("coding_ask_doubt_button__FjwXJ")[0];
-    if (askDoubtButton) {
-        askDoubtButton.parentNode.insertAdjacentElement("afterend", aiHelpButton);
+    // inserting the created button at the required location
+    const codingDescContainer = document.getElementsByClassName('py-4 px-3 coding_desc_container__gdB9M')[0];
+    if (codingDescContainer) {
+        codingDescContainer.insertAdjacentElement("beforeEnd", aiHelpButton);
     }
 
+    // Add click event listener to the AI Help button
     aiHelpButton.addEventListener("click", addaiHelperHandler);
 }
 
 function addaiHelperHandler() {
     // Check if chatbox already exists
-    if (document.getElementById("aiChatbox")) {
+    if (document.getElementById("aiChatboxWrapper")) {
         console.log("Chatbox already exists!");
         return;
     }
 
+    // Get the AI Help button container
+    const aiHelpButton = document.getElementById("aiHelpButton");
+    if (!aiHelpButton) {
+        console.error("AI Help button not found!");
+        return;
+    }
+
+    const parentDiv = aiHelpButton.parentElement;
+
+    // Create the wrapper for the chatbox
+    const chatboxWrapper = document.createElement('div');
+    chatboxWrapper.id = "aiChatboxWrapper";
+    chatboxWrapper.style.padding = "16px";
+
     // Create the chatbox container
     const chatboxContainer = document.createElement('div');
     chatboxContainer.id = "aiChatbox";
-    chatboxContainer.style.position = "fixed";
-    chatboxContainer.style.bottom = "20px";
-    chatboxContainer.style.right = "20px";
-    chatboxContainer.style.width = "300px";
-    chatboxContainer.style.height = "400px";
-    chatboxContainer.style.backgroundColor = "white";
-    chatboxContainer.style.boxShadow = "0 4px 6px rgba(0, 0, 0, 0.1)";
+    chatboxContainer.style.width = "100%";
+    chatboxContainer.style.backgroundColor = COLORS.Mint;
+    chatboxContainer.style.border = `1px solid ${COLORS.lightBlue}`;
     chatboxContainer.style.borderRadius = "8px";
     chatboxContainer.style.display = "flex";
     chatboxContainer.style.flexDirection = "column";
-    chatboxContainer.style.zIndex = "1000";
 
     // Create the header for the chatbox
     const chatboxHeader = document.createElement('div');
-    chatboxHeader.style.backgroundColor = "#007BFF";
+    chatboxHeader.style.backgroundColor = COLORS.blue;
     chatboxHeader.style.color = "white";
     chatboxHeader.style.padding = "10px";
     chatboxHeader.style.borderTopLeftRadius = "8px";
@@ -92,19 +99,22 @@ function addaiHelperHandler() {
     chatboxBody.style.flex = "1";
     chatboxBody.style.overflowY = "auto";
     chatboxBody.style.padding = "10px";
-    chatboxBody.style.borderTop = "1px solid #f1f1f1";
+    chatboxBody.style.backgroundColor = "white";
+    chatboxBody.style.maxHeight = "300px"; 
+    chatboxBody.style.minHeight = "100px"; // Optional: ensure minimum height in case there's not enough content
 
     // Create the input area
     const chatboxInputContainer = document.createElement('div');
     chatboxInputContainer.style.padding = "10px";
-    chatboxInputContainer.style.borderTop = "1px solid #f1f1f1";
+    chatboxInputContainer.style.borderTop = `1px solid ${COLORS.lightBlue}`;
+    chatboxInputContainer.style.backgroundColor = COLORS.AZ_Blue;
 
     const chatboxInput = document.createElement('input');
     chatboxInput.type = "text";
-    chatboxInput.placeholder = "Type your message...";
+    chatboxInput.placeholder = "Type your message";
     chatboxInput.style.width = "100%";
     chatboxInput.style.padding = "8px";
-    chatboxInput.style.border = "1px solid #ccc";
+    chatboxInput.style.border = `1px solid ${COLORS.lightBlue}`;
     chatboxInput.style.borderRadius = "4px";
 
     // Append input to the input container
@@ -115,12 +125,18 @@ function addaiHelperHandler() {
     chatboxContainer.appendChild(chatboxBody);
     chatboxContainer.appendChild(chatboxInputContainer);
 
-    // Append the chatbox container to the document body
-    document.body.appendChild(chatboxContainer);
+    // Append chatbox container to the wrapper
+    chatboxWrapper.appendChild(chatboxContainer);
+
+    // Insert the wrapper directly below the AI Help button
+    parentDiv.insertAdjacentElement("afterend", chatboxWrapper);
+
+    // Focus the screen on the newly created chatbox (added feature)
+    chatboxWrapper.scrollIntoView({ behavior: "smooth", block: "center" }); // This will scroll the page to bring the chatbox into view.
 
     // Event listener to close the chatbox
     document.getElementById("closeChatbox").addEventListener("click", () => {
-        chatboxContainer.remove();
+        chatboxWrapper.remove();
     });
 
     // Event listener to send messages
@@ -129,12 +145,12 @@ function addaiHelperHandler() {
             const message = chatboxInput.value.trim();
             chatboxInput.value = "";
 
-            // Display the user's message in the chatbox
+            // Display the user's message in the chatbox              
             const userMessage = document.createElement('div');
             userMessage.style.marginBottom = "10px";
             userMessage.style.padding = "10px";
-            userMessage.style.backgroundColor = "#007BFF";
-            userMessage.style.color = "white";
+            userMessage.style.backgroundColor = COLORS.AZ_Blue;
+            userMessage.style.color = "black";
             userMessage.style.borderRadius = "8px";
             userMessage.style.alignSelf = "flex-end";
             userMessage.textContent = message;
@@ -146,7 +162,7 @@ function addaiHelperHandler() {
                 const botMessage = document.createElement('div');
                 botMessage.style.marginBottom = "10px";
                 botMessage.style.padding = "10px";
-                botMessage.style.backgroundColor = "#f1f1f1";
+                botMessage.style.backgroundColor = COLORS.lightGreen;
                 botMessage.style.borderRadius = "8px";
                 botMessage.style.alignSelf = "flex-start";
                 botMessage.textContent = response;
@@ -159,6 +175,8 @@ function addaiHelperHandler() {
         }
     });
 }
+
+
 
 // Function to fetch response from Gemini API
 async function fetchGeminiResponse(message) {
@@ -196,6 +214,6 @@ async function fetchGeminiResponse(message) {
         }
     } catch (error) {
         console.error("Failed to fetch response:", error);
-        return "Sorry, something went wrong. Please try again later.";
+        return "Sorry, something went wrong. Please try again later.😢";
     }
 }
