@@ -10,10 +10,23 @@ const COLORS = {
 	"LightMint" : "#D8F2F5"
 };
 
+let currentPath = window.location.pathname;
+
 const observer = new MutationObserver(() => {
+    if (window.location.pathname !== currentPath) {
+        currentPath = window.location.pathname;
+        
+        // Remove existing chatbox if it exists
+        const existingChatbox = document.getElementById("aiChatboxWrapper");
+        if (existingChatbox) {
+            existingChatbox.remove();
+        }
+    }
+
+    // Check and add the AI Help button if necessary
     addAiHelpButton();
-    console.log("Trigerring");
-})
+});
+
 
 observer.observe(document.body, {childList : true, subtree : true});
 
@@ -28,7 +41,7 @@ function addAiHelpButton() {
     // Check if the current page is a problems page and the button doesn't already exist
     if (!onProblemsPage() || document.getElementById("aiHelpButton")) return;
 
-    //create AI Help ButtonDynamically
+    //create AI Help Button Dynamically
     const aiHelpButton = document.createElement('button');
     aiHelpButton.id = "aiHelpButton";
     aiHelpButton.type = "button";
@@ -47,14 +60,32 @@ function addAiHelpButton() {
     aiHelpButton.addEventListener("click", addaiHelperHandler);
 }
 
+function getLocalStorageKey() {
+    try {
+        // Extract the problem ID from the current path
+        const pathSegments = currentPath.split('/');
+        const problemIdIndex = pathSegments.indexOf('problems') + 1;
+        const problemId = pathSegments[problemIdIndex];
+
+        if (!problemId) {
+            throw new Error("Problem ID not found in the URL");
+        }
+
+        // Generate a unique key for localStorage
+        const uniqueKey = `maang_problem_${problemId}`;
+        return uniqueKey;
+    } catch (error) {
+        console.error("Error generating key:", error.message);
+        return null;
+    }
+}
+
 function addaiHelperHandler() {
-    // Check if chatbox already exists
     if (document.getElementById("aiChatboxWrapper")) {
         console.log("Chatbox already exists!");
         return;
     }
 
-    // Get the AI Help button container
     const aiHelpButton = document.getElementById("aiHelpButton");
     if (!aiHelpButton) {
         console.error("AI Help button not found!");
@@ -63,12 +94,10 @@ function addaiHelperHandler() {
 
     const parentDiv = aiHelpButton.parentElement;
 
-    // Create the wrapper for the chatbox
     const chatboxWrapper = document.createElement('div');
     chatboxWrapper.id = "aiChatboxWrapper";
     chatboxWrapper.style.padding = "16px";
 
-    // Create the chatbox container
     const chatboxContainer = document.createElement('div');
     chatboxContainer.id = "aiChatbox";
     chatboxContainer.style.width = "100%";
@@ -78,7 +107,6 @@ function addaiHelperHandler() {
     chatboxContainer.style.display = "flex";
     chatboxContainer.style.flexDirection = "column";
 
-    // Create the header for the chatbox
     const chatboxHeader = document.createElement('div');
     chatboxHeader.style.backgroundColor = COLORS.blue;
     chatboxHeader.style.color = "white";
@@ -94,16 +122,30 @@ function addaiHelperHandler() {
         <button id="closeChatbox" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">&times;</button>
     `;
 
-    // Create the chatbox body
     const chatboxBody = document.createElement('div');
     chatboxBody.style.flex = "1";
     chatboxBody.style.overflowY = "auto";
     chatboxBody.style.padding = "10px";
     chatboxBody.style.backgroundColor = "white";
-    chatboxBody.style.maxHeight = "300px"; 
-    chatboxBody.style.minHeight = "100px"; // Optional: ensure minimum height in case there's not enough content
+    chatboxBody.style.maxHeight = "300px";
+    chatboxBody.style.minHeight = "100px";
 
-    // Create the input area
+    // Populate chatbox with saved chats
+    const localDBkey = getLocalStorageKey();
+    if (localDBkey) {
+        const savedChats = JSON.parse(localStorage.getItem(localDBkey) || "[]");
+        savedChats.forEach((chat) => {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.marginBottom = "10px";
+            messageDiv.style.padding = "10px";
+            messageDiv.style.borderRadius = "8px";
+            messageDiv.style.alignSelf = chat.sender === "user" ? "flex-end" : "flex-start";
+            messageDiv.style.backgroundColor = chat.sender === "user" ? COLORS.AZ_Blue : COLORS.lightGreen;
+            messageDiv.textContent = chat.message;
+            chatboxBody.appendChild(messageDiv);
+        });
+    }
+
     const chatboxInputContainer = document.createElement('div');
     chatboxInputContainer.style.padding = "10px";
     chatboxInputContainer.style.borderTop = `1px solid ${COLORS.lightBlue}`;
@@ -117,35 +159,24 @@ function addaiHelperHandler() {
     chatboxInput.style.border = `1px solid ${COLORS.lightBlue}`;
     chatboxInput.style.borderRadius = "4px";
 
-    // Append input to the input container
     chatboxInputContainer.appendChild(chatboxInput);
-
-    // Append header, body, and input to the chatbox container
     chatboxContainer.appendChild(chatboxHeader);
     chatboxContainer.appendChild(chatboxBody);
     chatboxContainer.appendChild(chatboxInputContainer);
-
-    // Append chatbox container to the wrapper
     chatboxWrapper.appendChild(chatboxContainer);
-
-    // Insert the wrapper directly below the AI Help button
     parentDiv.insertAdjacentElement("afterend", chatboxWrapper);
 
-    // Focus the screen on the newly created chatbox (added feature)
-    chatboxWrapper.scrollIntoView({ behavior: "smooth", block: "center" }); // This will scroll the page to bring the chatbox into view.
+    chatboxWrapper.scrollIntoView({ behavior: "smooth", block: "center" });
 
-    // Event listener to close the chatbox
     document.getElementById("closeChatbox").addEventListener("click", () => {
         chatboxWrapper.remove();
     });
 
-    // Event listener to send messages
     chatboxInput.addEventListener("keydown", (event) => {
         if (event.key === "Enter" && chatboxInput.value.trim()) {
             const message = chatboxInput.value.trim();
             chatboxInput.value = "";
 
-            // Display the user's message in the chatbox              
             const userMessage = document.createElement('div');
             userMessage.style.marginBottom = "10px";
             userMessage.style.padding = "10px";
@@ -154,10 +185,12 @@ function addaiHelperHandler() {
             userMessage.style.borderRadius = "8px";
             userMessage.style.alignSelf = "flex-end";
             userMessage.textContent = message;
-
             chatboxBody.appendChild(userMessage);
 
-            // Call Gemini API and display the response
+            const savedChats = JSON.parse(localStorage.getItem(localDBkey) || "[]");
+            savedChats.push({ sender: "user", message });
+            localStorage.setItem(localDBkey, JSON.stringify(savedChats));
+
             fetchGeminiResponse(message).then((response) => {
                 const botMessage = document.createElement('div');
                 botMessage.style.marginBottom = "10px";
@@ -166,17 +199,16 @@ function addaiHelperHandler() {
                 botMessage.style.borderRadius = "8px";
                 botMessage.style.alignSelf = "flex-start";
                 botMessage.textContent = response;
-
                 chatboxBody.appendChild(botMessage);
 
-                // Scroll to the bottom of the chatbox
+                savedChats.push({ sender: "bot", message: response });
+                localStorage.setItem(localDBkey, JSON.stringify(savedChats));
+
                 chatboxBody.scrollTop = chatboxBody.scrollHeight;
             });
         }
     });
 }
-
-
 
 // Function to fetch response from Gemini API
 async function fetchGeminiResponse(message) {
