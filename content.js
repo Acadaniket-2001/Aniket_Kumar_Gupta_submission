@@ -245,14 +245,15 @@ async function addaiHelperHandler() {
     if (problemKey) {
         try {
             const savedChats = await getChatHistory(problemKey);
-            savedChats.forEach((message) => {
+            savedChats.slice(1).forEach((message) => {
                 const messageDiv = document.createElement('div');
                 messageDiv.style.marginBottom = "10px";
                 messageDiv.style.padding = "10px";
                 messageDiv.style.borderRadius = "8px";
                 messageDiv.style.alignSelf = message.role === "user" ? "flex-end" : "flex-start";
                 messageDiv.style.backgroundColor = message.role === "user" ? COLORS.AZ_Blue : COLORS.lightGreen;
-                messageDiv.textContent = message.parts[0].text;
+                
+                messageDiv.textContent = message.parts[0].text;                                       //⭐
                 chatboxBody.appendChild(messageDiv);
             });
         } catch (error) {
@@ -298,7 +299,8 @@ async function addaiHelperHandler() {
             userMessage.style.color = "black";
             userMessage.style.borderRadius = "8px";
             userMessage.style.alignSelf = "flex-end";
-            userMessage.textContent = message;
+
+            userMessage.textContent = message;                                   // ⭐
             chatboxBody.appendChild(userMessage);
 
             fetchGeminiResponse(message).then((response) => {
@@ -308,7 +310,8 @@ async function addaiHelperHandler() {
                 botMessage.style.backgroundColor = COLORS.lightGreen;
                 botMessage.style.borderRadius = "8px";
                 botMessage.style.alignSelf = "flex-start";
-                botMessage.textContent = response;
+
+                botMessage.textContent = response;                               // ⭐   
                 chatboxBody.appendChild(botMessage);
 
                 chatboxBody.scrollTop = chatboxBody.scrollHeight;
@@ -447,7 +450,7 @@ You are an AI mentor on maang.in, focused on assisting learners with the current
 
 1. **Context Adherence**:
    - Answer only questions related to the current problem.
-   - Politely reject unrelated queries, keeping the focus on the problem at hand.
+   - Politely reject and never answer queries not related to ${problemData?.data?.body || "N/A"}, keeping the focus on the problem at hand.
 
 2. **Answer What is Asked**:
    - Respond only to the specific question asked by the user.
