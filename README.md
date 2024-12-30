@@ -1,5 +1,5 @@
 # CodeHelp-AI Assistant
-CodeHelp-AI Assistant is designed to enhance your coding experience on maang.in by providing real-time AI-based assistance, hints, and debugging help.
+CodeHelp-AI Assistant is designed to enhance your coding experience on [maang.in](https://maang.in) by providing real-time AI-based assistance, hints, and debugging help.
 
 ---
 
