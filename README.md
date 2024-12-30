@@ -1,6 +1,8 @@
 # CodeHelp-AI Assistant
 CodeHelp-AI Assistant is designed to enhance your coding experience on maang.in by providing real-time AI-based assistance, hints, and debugging help.
 
+---
+
 ## Features
 1. **🔑 API Key Management**: Click the extension logo to enter the API key for the chat bot (Google Gemini API).
 2. **🔍 SPA Change Detection**: Uses Mutation Observer to detect DOM changes in maang.in without load events.
@@ -18,15 +20,10 @@ Aniket Gupta
 - [GitHub Profile](https://github.com/Acadaniket-2001)
 - [Project Repository](https://github.com/Acadaniket-2001/Aniket_Kumar_Gupta_submission)
 
-## Requirements
-### Knowledge
-- HTML
-- CSS
-- Javascript
-- Chrome API
-### Tools
-- Google Chrome Browser
-- Visual Studio Code
+## Prerequisites
+- Knowledge of Chrome API, JavaScript, HTML, and CSS.
+- A text editor (e.g., Visual Studio Code).
+- Google Chrome browser for testing.
 
 ## Installation
 ### For Developers
@@ -47,7 +44,6 @@ Aniket Gupta
 3. Enter your API key in the popup and save it.
 4. Navigate to maang.in and start solving problems with AI assistance.
 5. Use the AI Help button and chatbox to interact with the AI for real-time coding assistance.
-
 
 ## Usage Instructions
 1. Click on the AI Help button on the problem page of [maang.in](https://maang.in) website.
