@@ -1,7 +1,4 @@
 # CodeHelp-AI Assistant
-This is a basic Chrome Extension that provides interactive AI-based assistance for coding problems on maang.in.
-
-## Introduction
 CodeHelp-AI Assistant is designed to enhance your coding experience on maang.in by providing real-time AI-based assistance, hints, and debugging help.
 
 ## Features
