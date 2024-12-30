@@ -31,30 +31,32 @@ Aniket Gupta
 - Google Chrome Browser
 - Visual Studio Code
 
-## Setup Instructions
+## Installation
 ### For Developers
-1. Clone the repository:
-    ```sh
-    git clone https://github.com/Algozenith/chrome-ext-problem-tracker.git
-    cd chrome-ext-problem-tracker
-    ```
-2. Open Chrome Browser.
-3. In a new or blank tab, type in "chrome://extensions/" (without the quotes of course) and click [Enter].
-4. At the top right corner of the page, **enable** "Developer Mode".
-5. Click the button on the page that says "Load Unpacked".
-6. Navigate to your unzipped project folder and select that and hit OK.
-7. You are now ready to start working on the extension! Just make sure you reload after each change you make to see the changes take place.
+1. **Clone the Repository**  
+   ```bash
+   git clone https://github.com/Algozenith/chrome-ext-problem-tracker.git
+   cd chrome-ext-problem-tracker
+   ```
+
+2. **Load the Extension in Chrome**  
+   - Open Chrome and go to `chrome://extensions/`.  
+   - Enable **Developer Mode** (toggle at the top-right).  
+   - Click on **Load unpacked** and select the project folder.
 
 ### For End Users
 1. Download the extension from the Chrome Web Store.
 2. Click on the extension icon in the Chrome toolbar.
 3. Enter your API key in the popup and save it.
 4. Navigate to maang.in and start solving problems with AI assistance.
+5. Use the AI Help button and chatbox to interact with the AI for real-time coding assistance.
+
 
 ## Usage Instructions
-1. Click on the AI Help button on the problem page of [maang.in](maang.in) website.
-2. Interact with the chat bot to get hints and debugging help.
+1. Click on the AI Help button on the problem page of [maang.in](https://maang.in) website.
+2. Interact with the chat bot by the AI Help button to get hints and debugging help.
 3. Use the chat history to review previous interactions.
+4. Example: If you encounter a specific coding problem, type your question in the chatbox, and the AI will provide step-by-step hints.
 
 ## Contributing
 Contributions are welcome! Please fork the repository and submit a pull request.
