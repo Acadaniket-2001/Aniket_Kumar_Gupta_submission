@@ -14,7 +14,6 @@ Aniket Gupta
 - [Project Repository](https://github.com/Aniket_Kumar_Gupta_submission)
 
 ## Requirements
-git clone https://github.com/Aniket_Kumar_Gupta_submission.git
 ### Knowledge
 - HTML
 - CSS
