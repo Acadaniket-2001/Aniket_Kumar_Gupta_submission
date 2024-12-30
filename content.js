@@ -438,8 +438,7 @@ async function buildInitialPrompt(userMessage) {
         problemData = JSON.parse(problemData); 
     } catch (error) {
         console.error("Error parsing problem data:", error);
-        problemData = null;
-    }
+        problemData =
 
     const currentCode = getLocalStorageValueById(problemId); // Fetch the user's current code
 
