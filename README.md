@@ -9,8 +9,8 @@ CodeHelp-AI Assistant is designed to enhance your coding experience on maang.in 
 2. **🔍 SPA Change Detection**: Uses Mutation Observer to detect DOM changes in maang.in without load events.
 3. **💾 Persistent Chat History**: Saves chat history in `chrome.storage.local` to retain context across page reloads.
 4. **🤖 Interactive Chat Bot**: Remembers conversation context using chat history for better assistance.
-5. **📚 Enhanced Learning Experience**: Intercepts maang.in API calls to provide step-by-step hints, maintaining the learning spirit.
-6. **🆘 Dynamic AI Help Button**: Automatically adds an AI Help button on problem pages for easy access to the chat bot.
+5. **📚 Enhanced Learning Experience**: Intercepts maang.in API calls to provide step-by-step hints.
+6. **🆘 Dynamic AI Help Button**: Adds an AI Help button on problem pages for easy access to the chat bot.
 
 ## Demo Video
 [Watch the demo video](https://drive.google.com/file/d/11cUMeF_itO3paenupIb3SasQdQ8rHquH/view?usp=drive_link)
@@ -19,7 +19,7 @@ CodeHelp-AI Assistant is designed to enhance your coding experience on maang.in 
 Aniket Gupta
 <!-- - [Author Website]() -->
 - [GitHub Profile](https://github.com/Acadaniket-2001)
-- [Project Repository](https://github.com/Aniket_Kumar_Gupta_submission)
+- [Project Repository](https://github.com/Acadaniket-2001/Aniket_Kumar_Gupta_submission)
 
 ## Requirements
 ### Knowledge
