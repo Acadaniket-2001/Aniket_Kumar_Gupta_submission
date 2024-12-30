@@ -1,0 +1,72 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9;
+}
+
+.popup-container {
+    padding: 20px;
+    width: 300px;
+    text-align: center;
+    box-sizing: border-box; /* Ensures padding is included in the element's total width */
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+label {
+    font-size: 14px;
+    text-align: left;
+    color: #555;
+}
+
+input {
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: calc(100% - 20px); /* Adds space on the right side of the input field */
+    margin-right: 10px; /* Optional: Adds spacing on the right side of the input */
+    box-sizing: border-box; /* Ensures padding is included in the width */
+}
+
+button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(90deg, #189AB4, #75E6DA);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-shadow: 0 1px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background: linear-gradient(90deg, #05445E, #189AB4);
+    transform: scale(1.05);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+#statusMessage {
+    margin-top: 10px;
+    font-size: 14px;
+    color: green;
+}

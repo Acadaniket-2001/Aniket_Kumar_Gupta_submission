@@ -1,17 +1,39 @@
 const COLORS = {
     "AZ_Blue" : "#ddf6ff",
-	"darkBlue" : "#053E55", 
 	"blue" : "#05445E",
 	"lightBlue" : "#189AB4",
-	"darkGreen": "#47C0C7",
 	"Green": "#75E6DA",
 	"lightGreen" : "#A5ECE7",
-	"Mint" : "#D4F1F4",
-	"LightMint" : "#D8F2F5"
+	"Mint" : "#D4F1F4"
 };
 
-let currentPath = window.location.pathname;
+let  MY_API_KEY = "";
 
+
+
+
+function getAPIKey() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get("apiKey", (data) => {
+            if (data.apiKey) {
+                MY_API_KEY = data.apiKey;
+                resolve(data.apiKey);
+            } else {
+                reject("API Key not set!");
+            }
+        });
+    });
+}
+document.addEventListener("DOMContentLoaded", () => {
+    getAPIKey()
+        .then((key) => console.log("API Key Loaded:", key))
+        .catch((error) => console.error("Failed to load API Key:", error));
+});
+
+
+
+
+let currentPath = window.location.pathname;
 const observer = new MutationObserver(() => {
     if (window.location.pathname !== currentPath) {
         currentPath = window.location.pathname;
@@ -22,20 +44,128 @@ const observer = new MutationObserver(() => {
             existingChatbox.remove();
         }
     }
-
+    
+    if(document.body)   addInjectScript();
+    
     // Check and add the AI Help button if necessary
     addAiHelpButton();
 });
-
-
 observer.observe(document.body, {childList : true, subtree : true});
-
 addAiHelpButton();
+
+
+
+
+function addInjectScript() {
+    const script = document.createElement("script");
+    script.src = chrome.runtime.getURL("inject.js");
+    script.onload = () => script.remove();
+    document.documentElement.appendChild(script);
+}
+addInjectScript();
+
+
+
+
+const problemDataMap = new Map();
+let lastPageVisited = "";
+window.addEventListener("xhrDataFetched", (event) => {
+    const data = event.detail;
+    // console.log("Data fetched from CustomEvent: ", data);
+    if(data.url && data.url.match(/https:\/\/api2\.maang\.in\/problems\/user\/\d+/)) {
+
+        // console.log(data.url)
+        
+        const idMatch = data.url.match(/\/(\d+)$/);
+        
+        // console.log(idMatch);
+        
+        if(idMatch) {
+            const id = idMatch[1];
+        
+            // console.log(idMatch[1]);
+            
+            console.log("Storing problem data with ID:", id);
+            problemDataMap.set(id, data.response);   // storing response data by id
+            // console.log(`Stored Data for probelm ID ${id}: `, data.response);
+        }
+    }
+});
+
+
+
+
+function getCurrentProblemId() {
+    const idMatch = window.location.pathname.match(/-(\d+)$/);
+    return idMatch ? idMatch[1] : null;
+}
+
+
+function getProblemDataById(id) {
+    console.log("Fetching problem data with ID:", id);
+    if(id && problemDataMap.has(id)) {
+        // console.log(problemDataMap.get(id));
+        return problemDataMap.get(id);
+    }
+    console.log(`No data found for the problem ID ${id}`);
+    return null;
+}
+
+function getLocalStorageValueById(id) {
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i); 
+        
+        const lang = getCodingLangauge();
+        
+        if (key.endsWith(`${id}_${lang}`)) { 
+            return localStorage.getItem(key);
+        }
+    }
+    return null;
+}
+
+function getCodingLangauge() {
+    const langElements = document.getElementsByClassName("d-flex align-items-center gap-1 text-blue-dark");
+
+    let lang = "";
+    if (langElements.length) {
+        lang = langElements[0].textContent.trim();
+        console.log(lang);
+    }
+    else {
+        console.log("Element not found");
+    }
+    return lang;
+}
+
+
+
 
 function onProblemsPage() {
     const pathName = window.location.pathname;
     return pathName.startsWith('/problems/') && pathName.length > "/problems/".length;
 }
+
+
+
+
+function getProblemDescription() {
+    const elements = document.getElementsByClassName("problem_paragraph");
+
+    let contentString = "";
+
+    for (let i = 8; i <= 11; i++) {
+        if (elements[i]) {
+            contentString += elements[i].textContent.trim() + "\n\n";
+        }
+    }
+
+    contentString = contentString.trim();
+    console.log(contentString);
+}
+
+
+
 
 function addAiHelpButton() {
     // Check if the current page is a problems page and the button doesn't already exist
@@ -60,27 +190,11 @@ function addAiHelpButton() {
     aiHelpButton.addEventListener("click", addaiHelperHandler);
 }
 
-function getLocalStorageKey() {
-    try {
-        // Extract the problem ID from the current path
-        const pathSegments = currentPath.split('/');
-        const problemIdIndex = pathSegments.indexOf('problems') + 1;
-        const problemId = pathSegments[problemIdIndex];
 
-        if (!problemId) {
-            throw new Error("Problem ID not found in the URL");
-        }
 
-        // Generate a unique key for localStorage
-        const uniqueKey = `maang_problem_${problemId}`;
-        return uniqueKey;
-    } catch (error) {
-        console.error("Error generating key:", error.message);
-        return null;
-    }
-}
 
-function addaiHelperHandler() {
+// Update the chatbox population to use chrome.storage.sync
+async function addaiHelperHandler() {
     if (document.getElementById("aiChatboxWrapper")) {
         console.log("Chatbox already exists!");
         return;
@@ -130,20 +244,24 @@ function addaiHelperHandler() {
     chatboxBody.style.maxHeight = "300px";
     chatboxBody.style.minHeight = "100px";
 
-    // Populate chatbox with saved chats
-    const localDBkey = getLocalStorageKey();
-    if (localDBkey) {
-        const savedChats = JSON.parse(localStorage.getItem(localDBkey) || "[]");
-        savedChats.forEach((chat) => {
-            const messageDiv = document.createElement('div');
-            messageDiv.style.marginBottom = "10px";
-            messageDiv.style.padding = "10px";
-            messageDiv.style.borderRadius = "8px";
-            messageDiv.style.alignSelf = chat.sender === "user" ? "flex-end" : "flex-start";
-            messageDiv.style.backgroundColor = chat.sender === "user" ? COLORS.AZ_Blue : COLORS.lightGreen;
-            messageDiv.textContent = chat.message;
-            chatboxBody.appendChild(messageDiv);
-        });
+    // Populate chatbox with saved chats from chrome.storage.local
+    const problemKey = getCurrentProblemId();
+    if (problemKey) {
+        try {
+            const savedChats = await getChatHistory(problemKey);
+            savedChats.forEach((message) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.marginBottom = "10px";
+                messageDiv.style.padding = "10px";
+                messageDiv.style.borderRadius = "8px";
+                messageDiv.style.alignSelf = message.role === "user" ? "flex-end" : "flex-start";
+                messageDiv.style.backgroundColor = message.role === "user" ? COLORS.AZ_Blue : COLORS.lightGreen;
+                messageDiv.textContent = message.parts[0].text;
+                chatboxBody.appendChild(messageDiv);
+            });
+        } catch (error) {
+            console.error("Failed to load chat history:", error);
+        }
     }
 
     const chatboxInputContainer = document.createElement('div');
@@ -187,10 +305,6 @@ function addaiHelperHandler() {
             userMessage.textContent = message;
             chatboxBody.appendChild(userMessage);
 
-            const savedChats = JSON.parse(localStorage.getItem(localDBkey) || "[]");
-            savedChats.push({ sender: "user", message });
-            localStorage.setItem(localDBkey, JSON.stringify(savedChats));
-
             fetchGeminiResponse(message).then((response) => {
                 const botMessage = document.createElement('div');
                 botMessage.style.marginBottom = "10px";
@@ -201,37 +315,89 @@ function addaiHelperHandler() {
                 botMessage.textContent = response;
                 chatboxBody.appendChild(botMessage);
 
-                savedChats.push({ sender: "bot", message: response });
-                localStorage.setItem(localDBkey, JSON.stringify(savedChats));
-
                 chatboxBody.scrollTop = chatboxBody.scrollHeight;
             });
         }
     });
 }
 
-// Function to fetch response from Gemini API
-async function fetchGeminiResponse(message) {
-    const apiKey = "AIzaSyApes88r557-1MqpTmYfg1rzqV5s1iu6ZI"; // Replace with your actual Gemini API key
+
+
+
+// Utility function to get chat history from chrome storage
+function getChatHistory(problemKey) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get(problemKey, (result) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve(result[problemKey] || []);
+            }
+        });
+    });
+}
+
+// Utility function to save chat history to chrome storage
+function saveChatHistory(problemKey, chatHistory) {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.set({ [problemKey]: chatHistory }, () => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                resolve();
+            }
+        });
+    });
+}
+
+async function fetchGeminiResponse(userMessage) {
+    if (!MY_API_KEY) {
+        try {
+            await getAPIKey(); // Fetch and set the API key if not already set
+        } catch (error) {
+            console.error(error);
+            return "API Key is not set. Please configure it in the popup.";
+        }
+    }
+
+    const apiKey = MY_API_KEY; // Your actual Gemini API key
     const apiUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"; // Gemini API endpoint
 
     try {
+        const problemKey = getCurrentProblemId();
+        // Retrieve existing chat history for the problem from chrome.storage.sync
+        let chatHistory = await getChatHistory(problemKey);
+
+        // if(chatHistory.length === 0) {
+        //     // If chat history is empty, build the initial prompt
+        //     const initialPrompt = await buildInitialPrompt(userMessage);
+
+        //     chatHistory = [
+        //         {
+        //             role: "user",
+        //             parts: [
+        //                 {text : initialPrompt}
+        //             ]
+        //         }
+        //     ];
+        // }   
+        // else {
+            // Add the user message to the chat history
+            chatHistory.push({
+                role: "user",
+                parts: [{ text: userMessage }]
+            });
+        // }
+
+        const payLoad = { contents: chatHistory };
+
+        // Make the API call with the chat history
         const response = await fetch(`${apiUrl}?key=${apiKey}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-                contents: [
-                    {
-                        parts: [
-                            {
-                                text: message,
-                            },
-                        ],
-                    },
-                ],
-            }),
+            body: JSON.stringify(payLoad)
         });
 
         if (!response.ok) {
@@ -239,13 +405,36 @@ async function fetchGeminiResponse(message) {
         }
 
         const data = await response.json();
-        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
-            return data.candidates[0].content.parts[0].text.trim(); // Extracting the response text
-        } else {
+
+        // Extract the model's response
+        const modelResponse = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (!modelResponse) {
             throw new Error("Invalid response structure");
         }
+
+        // Add the model's response to the chat history
+        chatHistory.push({
+            role: "model",
+            parts: [{ text: modelResponse }]
+        });
+
+        // Save updated chat history back to chrome.storage.sync
+        await saveChatHistory(problemKey, chatHistory);
+
+        return modelResponse;
     } catch (error) {
         console.error("Failed to fetch response:", error);
-        return "Sorry, something went wrong. Please try again later.😢";
+        return "Sorry, something went wrong. Please try again later. 😢";
     }
+}
+
+async function buildInitialPrompt(userMessage) {
+    const problemId = getCurrentProblemId();
+
+    const problemData = getProblemDataById(problemId);
+    const currentCode = getLocalStorageValueById(problemId);
+
+    console.log(problemId);
+    console.log(problemData);
+    console.log(currentCode);
 }

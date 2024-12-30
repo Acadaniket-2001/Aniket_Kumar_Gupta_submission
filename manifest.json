@@ -23,9 +23,9 @@
   },
   "web_accessible_resources" : [
     {
-      
       "resources": [
-        "assets/aiHelpButton.png"
+        "assets/aiHelpButton.png",
+        "inject.js"
       ],        
       "matches" : ["<all_urls>"]
     }
