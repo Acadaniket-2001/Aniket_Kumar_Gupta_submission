@@ -38,8 +38,8 @@ Aniket Gupta
 ### For Developers
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/Algozenith/chrome-ext-problem-tracker.git
-   cd chrome-ext-problem-tracker
+   git clone https://github.com/Acadaniket-2001/Aniket_Kumar_Gupta_submission.git
+   cd Aniket_Kumar_Gupta_submission
    ```
 
 2. **Load the Extension in Chrome**  
