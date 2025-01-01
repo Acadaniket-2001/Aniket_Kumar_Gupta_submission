@@ -28,6 +28,11 @@ document.addEventListener("DOMContentLoaded", () => {
     getAPIKey()
         .then((key) => console.log("API Key Loaded:", key))
         .catch((error) => console.error("Failed to load API Key:", error));
+    loadMarkedJS(() => {
+        // Ensure addInjectScript and addAiHelpButton are called only once
+        addInjectScript();
+        addAiHelpButton();
+    });
 });
 
 
@@ -51,7 +56,6 @@ const observer = new MutationObserver(() => {
     addAiHelpButton();
 });
 observer.observe(document.body, {childList : true, subtree : true});
-addAiHelpButton();
 
 
 
@@ -62,7 +66,34 @@ function addInjectScript() {
     script.onload = () => script.remove();
     document.documentElement.appendChild(script);
 }
-addInjectScript();
+
+
+
+
+// function loadMarkedJS(callback) {
+//   const script = document.createElement('script');
+//   script.src = chrome.runtime.getURL('libs/marked.min.js'); // Adjust the path if necessary
+//   script.type = 'text/javascript';
+//   script.onload = () => {
+//     console.log('marked.min.js loaded successfully.');
+//     if (callback) callback();
+//   };
+//   script.onerror = () => {
+//     console.error('Failed to load marked.min.js.');
+//   };
+//     // document.head.appendChild(script);
+//     document.documentElement.appendChild(script);
+
+// }
+
+function parseMarkdown(input) {
+    if (typeof marked !== 'undefined') {
+        return marked.parse(input);
+    } else {
+        console.error('marked is not defined');
+        return input;
+    }
+}
 
 
 
@@ -76,14 +107,8 @@ window.addEventListener("xhrDataFetched", (event) => {
         const idMatch = data.url.match(/\/(\d+)$/);
         if(idMatch) {
             const id = idMatch[1];            
-
             console.log("Storing problem data with ID:", id);
-            
-            problemDataMap.set(id, data.response);   // storing response data by id
-            
-            // console.log(`Stored Data for probelm ID ${id}: `, data.response);
-            
-            console.log(`Stored Data for probelm ID ${id}: `, problemDataMap.get(id));
+            problemDataMap.set(id, data.response);   // storing response data by id            
         }
     }
 });
@@ -253,14 +278,14 @@ async function addaiHelperHandler() {
                 messageDiv.style.alignSelf = message.role === "user" ? "flex-end" : "flex-start";
                 messageDiv.style.backgroundColor = message.role === "user" ? COLORS.AZ_Blue : COLORS.lightGreen;
                 
-                messageDiv.textContent = message.parts[0].text;                                       //⭐
+                messageDiv.innerHTML = parseMarkdown(message.parts[0].text); // Render markdown
                 chatboxBody.appendChild(messageDiv);
             });
         } catch (error) {
             console.error("Failed to load chat history:", error);
         }
     }
-
+    
     const chatboxInputContainer = document.createElement('div');
     chatboxInputContainer.style.padding = "10px";
     chatboxInputContainer.style.borderTop = `1px solid ${COLORS.lightBlue}`;
@@ -291,7 +316,7 @@ async function addaiHelperHandler() {
         if (event.key === "Enter" && chatboxInput.value.trim()) {
             const message = chatboxInput.value.trim();
             chatboxInput.value = "";
-
+            
             const userMessage = document.createElement('div');
             userMessage.style.marginBottom = "10px";
             userMessage.style.padding = "10px";
@@ -299,9 +324,10 @@ async function addaiHelperHandler() {
             userMessage.style.color = "black";
             userMessage.style.borderRadius = "8px";
             userMessage.style.alignSelf = "flex-end";
-
-            userMessage.textContent = message;                                   // ⭐
+                    
+            userMessage.innerHTML = parseMarkdown(message); // Render markdown
             chatboxBody.appendChild(userMessage);
+            
 
             fetchGeminiResponse(message).then((response) => {
                 const botMessage = document.createElement('div');
@@ -310,8 +336,8 @@ async function addaiHelperHandler() {
                 botMessage.style.backgroundColor = COLORS.lightGreen;
                 botMessage.style.borderRadius = "8px";
                 botMessage.style.alignSelf = "flex-start";
-
-                botMessage.textContent = response;                               // ⭐   
+                
+                botMessage.innerHTML = parseMarkdown(response); // Render markdown
                 chatboxBody.appendChild(botMessage);
 
                 chatboxBody.scrollTop = chatboxBody.scrollHeight;
