@@ -28,11 +28,8 @@ document.addEventListener("DOMContentLoaded", () => {
     getAPIKey()
         .then((key) => console.log("API Key Loaded:", key))
         .catch((error) => console.error("Failed to load API Key:", error));
-    loadMarkedJS(() => {
-        // Ensure addInjectScript and addAiHelpButton are called only once
         addInjectScript();
         addAiHelpButton();
-    });
 });
 
 
@@ -69,22 +66,6 @@ function addInjectScript() {
 
 
 
-
-// function loadMarkedJS(callback) {
-//   const script = document.createElement('script');
-//   script.src = chrome.runtime.getURL('libs/marked.min.js'); // Adjust the path if necessary
-//   script.type = 'text/javascript';
-//   script.onload = () => {
-//     console.log('marked.min.js loaded successfully.');
-//     if (callback) callback();
-//   };
-//   script.onerror = () => {
-//     console.error('Failed to load marked.min.js.');
-//   };
-//     // document.head.appendChild(script);
-//     document.documentElement.appendChild(script);
-
-// }
 
 function parseMarkdown(input) {
     if (typeof marked !== 'undefined') {

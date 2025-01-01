@@ -10,6 +10,7 @@ CodeHelp-AI Assistant is designed to enhance your coding experience on [maang.in
 4. **🤖 Interactive Chat Bot**: Remembers conversation context using chat history for better assistance.
 5. **📚 Enhanced Learning Experience**: Intercepts maang.in API calls to provide step-by-step hints.
 6. **🆘 Dynamic AI Help Button**: Adds an AI Help button on problem pages for easy access to the chat bot.
+7. **📝 Markdown Support**: Renders messages in the chatbox using Markdown for better readability and formatting.
 
 ---
 
